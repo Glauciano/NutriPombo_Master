@@ -1,0 +1,90 @@
+import { NextResponse } from "next/server";
+import { db } from "@/db";
+import {
+  pigeons,
+  breedingPairs,
+  eggs,
+  chicks,
+  healthRecords,
+  vaccinations,
+  foods,
+  mixtures,
+  feedings,
+  trainings,
+  competitions,
+  results,
+  transactions,
+  inventory,
+  aiRecommendations,
+  widowhoodPairs,
+  settings,
+} from "@/db/schema";
+
+export async function GET() {
+  const [
+    pigeonsData,
+    pairsData,
+    eggsData,
+    chicksData,
+    healthData,
+    vaccData,
+    foodsData,
+    mixturesData,
+    feedingsData,
+    trainingsData,
+    competitionsData,
+    resultsData,
+    transactionsData,
+    inventoryData,
+    recommendationsData,
+    widowhoodData,
+    settingsData,
+  ] = await Promise.all([
+    db.select().from(pigeons),
+    db.select().from(breedingPairs),
+    db.select().from(eggs),
+    db.select().from(chicks),
+    db.select().from(healthRecords),
+    db.select().from(vaccinations),
+    db.select().from(foods),
+    db.select().from(mixtures),
+    db.select().from(feedings),
+    db.select().from(trainings),
+    db.select().from(competitions),
+    db.select().from(results),
+    db.select().from(transactions),
+    db.select().from(inventory),
+    db.select().from(aiRecommendations),
+    db.select().from(widowhoodPairs),
+    db.select().from(settings),
+  ]);
+
+  const backup = {
+    meta: {
+      app: "PigeonMaster AI",
+      version: 1,
+      createdAt: new Date().toISOString(),
+    },
+    data: {
+      pigeons: pigeonsData,
+      breedingPairs: pairsData,
+      eggs: eggsData,
+      chicks: chicksData,
+      healthRecords: healthData,
+      vaccinations: vaccData,
+      foods: foodsData,
+      mixtures: mixturesData,
+      feedings: feedingsData,
+      trainings: trainingsData,
+      competitions: competitionsData,
+      results: resultsData,
+      transactions: transactionsData,
+      inventory: inventoryData,
+      aiRecommendations: recommendationsData,
+      widowhoodPairs: widowhoodData,
+      settings: settingsData,
+    },
+  };
+
+  return NextResponse.json(backup);
+}

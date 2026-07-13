@@ -1,0 +1,15 @@
+# ─── Netlify config for PigeonMaster AI (Next.js 16) ───
+
+[build]
+  command = "npm run build"
+  # Do NOT set `publish` manually — the Next.js runtime plugin manages output.
+
+[build.environment]
+  # Next.js 16 requires Node >= 20.9. Pin a modern LTS.
+  NODE_VERSION = "22"
+  # Skip type-strict lint failures blocking deploy (typecheck runs locally)
+  NETLIFY_NEXT_PLUGIN_SKIP = "false"
+
+# Official Next.js runtime — required for App Router, API routes and SSR
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
