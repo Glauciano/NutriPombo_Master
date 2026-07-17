@@ -138,74 +138,72 @@ export function Dashboard({ user, onSignOut }: Props) {
         {sec === "calc" && <Placeholder title="Calculadora" onBack={() => setSec("home")} />}
         {sec === "map" && <Placeholder title="Mapa" onBack={() => setSec("home")} />}
         {sec === "wx" && <Placeholder title="Clima" onBack={() => setSec("home")} />}
-        {["novo-pombo","alimentacao","plantel","perf","viuvez","cfg-plantel","pombal","financeiro","flights","backup","protocolos","ia"].map(id => (
-          sec === id && <Placeholder key={id} title={id} onBack={() => setSec("home")} />
-        ))}
+        {sec === "novo-pombo" && <NovoPombo user={user} onBack={() => setSec("home")} />}
+        {sec === "alimentacao" && <Alimentacao onBack={() => setSec("home")} />}
+        {sec === "plantel" && <Plantel onBack={() => setSec("home")} />}
+        {sec === "alertas" && <Alertas onBack={() => setSec("home")} />}
+        {sec === "perf" && <Performance onBack={() => setSec("home")} />}
+        {sec === "viuvez" && <Viuvez onBack={() => setSec("home")} />}
+        {sec === "cfg-plantel" && <ConfigPlantel onBack={() => setSec("home")} />}
+        {sec === "pombal" && <Pombal onBack={() => setSec("home")} />}
+        {sec === "financeiro" && <Financeiro onBack={() => setSec("home")} />}
+        {sec === "flights" && <Flights onBack={() => setSec("home")} />}
+        {sec === "backup" && <BackupRestore onBack={() => setSec("home")} />}
+        {sec === "protocolos" && <ProtocolosCompeticao onBack={() => setSec("home")} />}
+        {sec === "ia" && <AssistenteIA onBack={() => setSec("home")} />}
       </main>
     </div>
   );
 }
 
-/* ====================== CALENDÁRIO MELHORADO ====================== */
+/* ====================== CALENDÁRIO - VERSÃO MAIS PRÓXIMA DAS SUAS IMAGENS ====================== */
 function Calendario({ onBack }: { onBack: () => void }) {
   const { provas } = useProvas();
   const done = provas.filter(p => p.done).length;
-  const totalKm = provas.reduce((sum, p) => sum + p.km, 0);
 
   return (
-    <div className="space-y-6">
-      <button onClick={onBack} className="flex items-center gap-2 text-mist-400 hover:text-white">← Voltar</button>
+    <div className="max-w-4xl mx-auto">
+      <button onClick={onBack} className="mb-6 flex items-center gap-2 text-mist-400 hover:text-white">
+        ← Voltar
+      </button>
 
-      <div className="bg-[#0f172a] rounded-3xl p-8">
-        <div className="flex justify-between items-start">
-          <div>
-            <h1 className="text-4xl font-bold text-white">Calendário 2026</h1>
-            <p className="text-mist-400 mt-1">10 provas • {totalKm.toLocaleString('pt-BR')} km na temporada</p>
+      <div className="bg-[#0a1428] rounded-3xl p-8">
+        <h1 className="text-4xl font-bold text-white mb-1">Calendário 2026</h1>
+        <p className="text-mist-400 mb-8">Campeonato Nacional • Calcular pontos por posição</p>
+
+        <div className="bg-[#1e2937] rounded-2xl p-5 mb-8">
+          <div className="flex justify-between items-center">
+            <div className="text-mist-400">Progresso da Temporada</div>
+            <div className="text-yellow-400 font-bold">{done}/10</div>
           </div>
-          <div className="flex gap-4">
-            <div className="bg-emerald-500/10 border border-emerald-500 text-emerald-400 rounded-2xl px-8 py-4 text-center">
-              <div className="text-5xl font-bold">{done}</div>
-              <div className="text-xs uppercase tracking-widest">FEITAS</div>
-            </div>
-            <div className="bg-amber-500/10 border border-amber-500 text-amber-400 rounded-2xl px-8 py-4 text-center">
-              <div className="text-5xl font-bold">{provas.length - done}</div>
-              <div className="text-xs uppercase tracking-widest">RESTAM</div>
-            </div>
+          <div className="h-2.5 bg-[#334155] rounded-full mt-3 overflow-hidden">
+            <div className="h-full bg-yellow-400 rounded-full" style={{ width: `${(done / 10) * 100}%` }} />
           </div>
         </div>
 
-        <div className="mt-10 bg-[#1e2937] rounded-2xl p-5">
-          <div className="flex justify-between text-sm mb-3">
-            <span className="text-mist-400">Progresso da temporada</span>
-            <span className="font-bold text-yellow-400">{done}/{provas.length}</span>
-          </div>
-          <div className="h-3 bg-[#334155] rounded-full overflow-hidden">
-            <div className="h-full bg-gradient-to-r from-yellow-400 to-amber-400 rounded-full" style={{ width: `${(done / provas.length) * 100}%` }} />
-          </div>
-        </div>
-
-        <div className="mt-8 space-y-4">
-          {provas.map((prova) => {
-            const days = daysLeftFor(prova.dom, prova.done);
+        <div className="space-y-3">
+          {provas.map((prova, index) => {
+            const daysLeft = daysLeftFor(prova.dom, prova.done);
             return (
-              <div key={prova.id} className={`bg-[#1e2937] rounded-2xl p-6 flex justify-between items-center border-l-4 ${prova.done ? 'border-emerald-500' : 'border-yellow-400'}`}>
-                <div className="flex items-center gap-5">
-                  <div className={`w-11 h-11 rounded-2xl flex items-center justify-center text-2xl font-bold ${prova.done ? 'bg-emerald-500/20 text-emerald-400' : 'bg-yellow-400/20 text-yellow-400'}`}>
-                    {prova.done ? '✓' : prova.n}
+              <div key={prova.id} className="bg-[#1e2937] hover:bg-[#25344a] transition-all rounded-2xl p-6 flex items-center justify-between group">
+                <div className="flex items-center gap-6">
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl font-bold flex-shrink-0 ${prova.done ? 'bg-emerald-500/20 text-emerald-400' : 'bg-yellow-400/20 text-yellow-400'}`}>
+                    {prova.n}
                   </div>
                   <div>
-                    <div className="font-semibold text-white text-lg">{prova.city} — {prova.uf}</div>
-                    <div className="text-xs text-mist-400">{prova.diff} • {prova.km} km</div>
-                    <div className="text-xs text-mist-500 mt-1">Sáb {prova.sab} • Dom {prova.dom}</div>
+                    <div className="text-white font-semibold text-lg">{prova.city} — {prova.uf}</div>
+                    <div className="text-mist-400 text-sm">{prova.diff} • {prova.km} km</div>
+                    <div className="text-xs text-mist-500 mt-1">Sábado {prova.sab} • Domingo {prova.dom}</div>
                   </div>
                 </div>
+
                 <div className="text-right">
                   {prova.done ? (
-                    <div className="bg-emerald-500/20 text-emerald-400 px-6 py-2 rounded-full text-sm font-bold">REALIZADA</div>
+                    <div className="text-emerald-400 text-sm font-bold px-5 py-2 bg-emerald-500/10 rounded-full">✓ Realizada</div>
                   ) : (
-                    <div>
-                      <div className="text-5xl font-light text-white">{days}</div>
-                      <div className="text-xs text-mist-400">dias restantes</div>
+                    <div className="text-right">
+                      <div className="text-5xl font-light text-white leading-none">{daysLeft}</div>
+                      <div className="text-xs text-mist-400 tracking-widest">DIAS</div>
                     </div>
                   )}
                 </div>
@@ -218,7 +216,54 @@ function Calendario({ onBack }: { onBack: () => void }) {
   );
 }
 
-/* ====================== COMPONENTES BÁSICOS ====================== */
+/* ====================== OUTRAS TELAS ====================== */
+function Home({ go }: { go: (s: Section) => void }) {
+  const { provas } = useProvas();
+  const next = provas.find((p) => !p.done) ?? provas[0];
+  const nextDays = next ? daysLeftFor(next.dom, next.done) : 2;
+
+  return (
+    <div className="space-y-8">
+      <div className="flex items-center gap-4">
+        <div className="text-4xl">⚙️</div>
+        <div>
+          <h1 className="text-4xl font-bold text-white">Centro de Provas</h1>
+          <p className="text-mist-400">Calendário · Mapa · Clima · IA integrados</p>
+        </div>
+      </div>
+
+      <div className="bg-gradient-to-br from-[#13222f] to-[#0f172a] border border-yellow-400/30 rounded-3xl p-8">
+        <div className="flex justify-between items-start">
+          <div>
+            <div className="uppercase text-yellow-400 text-sm font-bold tracking-widest">Próxima Prova</div>
+            <h2 className="text-5xl font-bold text-white mt-3">#{next.n} {next.city} — {next.uf}</h2>
+            <p className="text-mist-400 mt-4">↑ {next.diff} • {next.km} km • Domingo {next.dom}</p>
+          </div>
+          <div className="text-right">
+            <div className="text-[72px] leading-none font-light text-emerald-400">{nextDays}</div>
+            <div className="text-sm text-mist-400 -mt-3">DIAS</div>
+          </div>
+        </div>
+        <button 
+          onClick={() => go("cal")}
+          className="mt-10 w-full bg-yellow-400 text-black font-bold py-4 rounded-2xl text-lg hover:bg-amber-300 transition"
+        >
+          Ver Protocolo Completo →
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function Placeholder({ title, onBack }: { title: string; onBack: () => void }) {
+  return (
+    <div className="bg-[#0f172a] rounded-3xl p-20 text-center">
+      <div className="text-3xl text-mist-400">Em breve...</div>
+      <p className="text-mist-500 mt-4">{title}</p>
+    </div>
+  );
+}
+
 function Ambient() {
   return <div className="pointer-events-none absolute inset-0 bg-grid opacity-30" />;
 }
@@ -230,58 +275,4 @@ function Clock() {
     return () => window.clearInterval(id);
   }, []);
   return <div className="hidden sm:block text-xs font-mono text-mist-500">🕒 {now.toLocaleTimeString("pt-BR")}</div>;
-}
-
-function Home({ go }: { go: (s: Section) => void }) {
-  const { provas } = useProvas();
-  const next = provas.find((p) => !p.done) ?? provas[0];
-  const done = provas.filter((p) => p.done).length;
-  const nextDays = next ? daysLeftFor(next.dom, next.done) : 2;
-
-  return (
-    <div className="space-y-8">
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-amber-500 rounded-2xl flex items-center justify-center text-2xl">⚙️</div>
-        <div>
-          <h1 className="text-4xl font-bold text-white">Centro de Provas</h1>
-          <p className="text-mist-400">Calendário · Mapa · Clima · IA integrados</p>
-        </div>
-      </div>
-
-      <div className="bg-[#13222f] border border-yellow-400/30 rounded-3xl p-8">
-        <div className="flex justify-between">
-          <div>
-            <div className="text-yellow-400 text-sm font-bold tracking-widest">⚡ PRÓXIMA PROVA</div>
-            <h2 className="text-4xl font-bold text-white mt-2">#{next.n} {next.city} — {next.uf}</h2>
-            <p className="text-mist-400 mt-3">↑ {next.diff} • {next.km} km • Domingo {next.dom}</p>
-          </div>
-          <div className="text-right">
-            <div className="text-7xl font-light text-emerald-400">{nextDays}</div>
-            <div className="text-xs text-mist-400 tracking-widest">DIAS</div>
-          </div>
-        </div>
-        <button onClick={() => go("cal")} className="mt-8 w-full bg-yellow-400 hover:bg-yellow-300 text-black font-bold py-4 rounded-2xl text-lg">Ver Protocolo Completo →</button>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div className="bg-[#13222f] rounded-3xl p-6 text-center">
-          <div className="text-5xl font-bold text-white">{provas.length}</div>
-          <div className="text-mist-400 text-sm">Provas 2026</div>
-        </div>
-        <div className="bg-[#13222f] rounded-3xl p-6 text-center">
-          <div className="text-5xl font-bold text-emerald-400">{done}</div>
-          <div className="text-mist-400 text-sm">Realizadas</div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function Placeholder({ title, onBack }: { title: string; onBack: () => void }) {
-  return (
-    <div className="bg-[#0f172a] rounded-3xl p-12 text-center">
-      <button onClick={onBack} className="mb-8 text-mist-400 hover:text-white">← Voltar</button>
-      <div className="text-3xl text-mist-400">{title} em desenvolvimento...</div>
-    </div>
-  );
 }
