@@ -1,41 +1,63 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { X, Bell } from "lucide-react";
-import Link from "next/link";
-import { DAILY_TASKS, type DailyTask } from "@/lib/alerts";
 
-/* ─── Web Audio sound ─── */
+import { useEffect, useRef, useState } from "react";
+import { Bell, X } from "lucide-react";
+import Link from "next/link";
+
+type DailyTask = {
+  id: string;
+  time: string;
+  title: string;
+  description: string;
+  emoji: string;
+};
+
+const DAILY_TASKS: DailyTask[] = [
+  { id: "1", time: "06:00", title: "Alimentação Matinal", description: "Fornecer ração + suplementos", emoji: "🌾" },
+  { id: "2", time: "07:30", title: "Limpeza do Pombal", description: "Trocar água e limpar bandejas", emoji: "🧹" },
+  { id: "3", time: "11:00", title: "Treino / Soltura", description: "Verificar condições climáticas", emoji: "🕊️" },
+  { id: "4", time: "16:00", title: "Alimentação da Tarde", description: "Ração + vitaminas", emoji: "🌾" },
+  { id: "5", time: "18:30", title: "Conferência do Plantel", description: "Verificar saúde dos pombos", emoji: "👀" },
+  { id: "6", time: "21:00", title: "Fechamento do Pombal", description: "Trancar e ativar alarmes", emoji: "🔒" },
+];
+
 function playAlertSound() {
-  if (typeof window === "undefined") return;
   try {
-    const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-    const ctx = new AudioCtx();
-    const notes = [659.25, 783.99, 1046.5];
-    const noteDuration = 0.18;
-    const gap = 0.12;
+    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const notes = [659.25, 783.99, 987.77, 1318.51];
+    const noteDuration = 0.12;
+    const gap = 0.08;
+
     notes.forEach((freq, i) => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
+      const startTime = ctx.currentTime + i * (noteDuration + gap);
+
       osc.type = "sine";
       osc.frequency.value = freq;
-      osc.connect(gain);
+      gain.gain.value = 0.3;
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = "lowpass";
+      filter.frequency.value = 1200;
+
+      osc.connect(filter);
+      filter.connect(gain);
       gain.connect(ctx.destination);
-      const startTime = ctx.currentTime + i * (noteDuration + gap);
-      gain.gain.setValueAtTime(0, startTime);
-      gain.gain.linearRampToValueAtTime(0.35, startTime + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.001, startTime + noteDuration + 0.3);
+
       osc.start(startTime);
       osc.stop(startTime + noteDuration + 0.35);
     });
-    setTimeout(() => ctx.close(), (notes.length * (noteDuration + gap) + 1) * 1000);
-  } catch { /* ignore */ }
+  } catch (e) {
+    console.log("Som não suportado");
+  }
 }
 
 function playAlarmSequence() {
   playAlertSound();
-  setTimeout(playAlertSound, 1500);
-  setTimeout(playAlertSound, 3000);
+  setTimeout(playAlertSound, 800);
+  setTimeout(playAlertSound, 1600);
 }
 
 export function GlobalAlarm() {
@@ -43,27 +65,20 @@ export function GlobalAlarm() {
   const [customTasks, setCustomTasks] = useState<DailyTask[] | null>(null);
   const firedRef = useRef<Set<string>>(new Set());
 
-  /* load custom tasks (breeder's own routine) */
+  // Carregar tarefas customizadas
   useEffect(() => {
     try {
       const cached = localStorage.getItem("pm_custom_tasks");
       if (cached) {
         const parsed = JSON.parse(cached);
-        if (Array.isArray(parsed) && parsed.length) setCustomTasks(parsed);
+        if (Array.isArray(parsed) && parsed.length > 0) setCustomTasks(parsed);
       }
-    } catch { /* ignore */ }
-
-    fetch("/api/settings?key=custom_tasks")
-      .then((r) => r.json())
-      .then((d) => {
-        if (d.value?.tasks?.length) {
-          setCustomTasks(d.value.tasks);
-          try { localStorage.setItem("pm_custom_tasks", JSON.stringify(d.value.tasks)); } catch { /* ignore */ }
-        }
-      })
-      .catch(() => { /* ignore */ });
+    } catch (e) {
+      console.error(e);
+    }
   }, []);
 
+  // Verificação de horário
   useEffect(() => {
     const tasksToWatch = customTasks || DAILY_TASKS;
     const interval = setInterval(() => {
@@ -73,32 +88,37 @@ export function GlobalAlarm() {
       const currentTime = `${hh}:${mm}`;
       const todayKey = now.toDateString();
 
-      /* read done tasks + sound pref from localStorage */
       let doneTasks: Record<string, boolean> = {};
       let soundEnabled = true;
+
       try {
         const saved = localStorage.getItem("alertas_done");
         if (saved) {
           const parsed = JSON.parse(saved);
           if (parsed.date === todayKey) doneTasks = parsed.tasks || {};
         }
-        const sound = localStorage.getItem("alertas_sound");
-        if (sound !== null) soundEnabled = sound === "true";
-      } catch { /* ignore */ }
+        const soundPref = localStorage.getItem("alertas_sound");
+        if (soundPref !== null) soundEnabled = soundPref === "true";
+      } catch {}
 
       for (const task of tasksToWatch) {
         const alertKey = `${todayKey}-${task.id}`;
-        if (task.time === currentTime && !firedRef.current.has(alertKey) && !doneTasks[task.id]) {
+
+        if (
+          task.time === currentTime &&
+          !firedRef.current.has(alertKey) &&
+          !doneTasks[task.id]
+        ) {
           firedRef.current.add(alertKey);
-
           if (soundEnabled) playAlarmSequence();
-
           setActiveAlert(task);
-          setTimeout(() => setActiveAlert(null), 30000);
 
           if (typeof Notification !== "undefined" && Notification.permission === "granted") {
             new Notification(`🔔 ${task.title}`, { body: task.description });
           }
+
+          setTimeout(() => setActiveAlert(null), 25000);
+          break;
         }
       }
     }, 1000);
@@ -109,31 +129,37 @@ export function GlobalAlarm() {
   if (!activeAlert) return null;
 
   return (
-    <div className="fixed bottom-6 right-6 z-[100] max-w-sm animate-bounce-slow">
-      <div className="bg-[#1a2736] border-2 border-yellow-500 rounded-2xl p-4 shadow-2xl shadow-yellow-500/20">
-        <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-xl bg-yellow-500/20 flex items-center justify-center text-lg shrink-0 animate-pulse">
+    <div className="fixed bottom-8 right-8 z-[200] max-w-sm animate-bounce-slow">
+      <div className="bg-[#13222f] border-2 border-yellow-500 rounded-3xl p-6 shadow-2xl shadow-yellow-500/30">
+        <div className="flex items-start gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-yellow-500/10 flex items-center justify-center text-3xl shrink-0">
             {activeAlert.emoji}
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-[10px] font-black text-yellow-400 uppercase tracking-widest flex items-center gap-1 mb-0.5">
-              <Bell className="w-3 h-3" /> Hora da tarefa — {activeAlert.time}
-            </p>
-            <p className="text-sm font-bold text-white">{activeAlert.title}</p>
-            <p className="text-xs text-slate-400">{activeAlert.description}</p>
-            <Link
-              href="/alertas"
-              onClick={() => setActiveAlert(null)}
-              className="inline-block mt-2 text-xs font-bold text-yellow-400 hover:text-yellow-300"
-            >
-              Abrir Central de Alertas →
-            </Link>
+
+          <div className="flex-1">
+            <div className="flex items-center gap-2 text-yellow-400 text-xs font-bold tracking-[0.5px] uppercase mb-1">
+              <Bell className="w-4 h-4" />
+              ALARME — {activeAlert.time}
+            </div>
+            <p className="text-lg font-semibold text-white leading-tight">{activeAlert.title}</p>
+            <p className="text-sm text-slate-400 mt-1">{activeAlert.description}</p>
+
+            <div className="mt-4 flex gap-3">
+              <Link
+                href="/alertas"
+                onClick={() => setActiveAlert(null)}
+                className="text-yellow-400 hover:text-yellow-300 text-sm font-semibold flex items-center gap-1"
+              >
+                Ver Central de Alertas →
+              </Link>
+            </div>
           </div>
+
           <button
             onClick={() => setActiveAlert(null)}
-            className="p-1 hover:bg-white/10 rounded-lg transition-colors shrink-0"
+            className="text-slate-400 hover:text-white p-1 -mt-1 -mr-1 rounded-xl hover:bg-white/10 transition"
           >
-            <X className="w-4 h-4 text-slate-400" />
+            <X className="w-5 h-5" />
           </button>
         </div>
       </div>
