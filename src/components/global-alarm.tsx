@@ -156,119 +156,115 @@ export function Dashboard({ user, onSignOut }: Props) {
   );
 }
 
-/* ====================== TELA PRINCIPAL INTEGRADA ====================== */
+/* ====================== CALCULADORA - ATUALIZADA (MAIS PRÓXIMA DA SUA ÚLTIMA IMAGEM) ====================== */
+function Calculadora({ onBack }: { onBack: () => void }) {
+  const [tab, setTab] = useState<"velocidade" | "tempo" | "distancia">("velocidade");
+  const [distancia, setDistancia] = useState(300);
+  const [horaSoltura, setHoraSoltura] = useState("07:00");
+  const [horaChegada, setHoraChegada] = useState("09:45");
+
+  const tempoVooMin = 165;
+  const velocidadeKmh = 109.1;
+  const metrosPorMinuto = 1818;
+
+  return (
+    <div className="space-y-6">
+      <button onClick={onBack} className="text-mist-400 hover:text-white flex items-center gap-2">← Voltar</button>
+
+      <div className="bg-[#0f172a] rounded-3xl p-6">
+        <div className="flex items-center gap-3 mb-6">
+          <span className="text-3xl">⚡</span>
+          <h1 className="text-3xl font-bold text-white">Calculadora de Velocidade</h1>
+        </div>
+
+        {/* Tabs */}
+        <div className="grid grid-cols-3 gap-2 bg-[#1e2937] p-1.5 rounded-2xl mb-8">
+          <button onClick={() => setTab("velocidade")} className={`py-3 rounded-xl font-medium ${tab === "velocidade" ? "bg-yellow-400 text-black" : "text-mist-300"}`}>Velocidade</button>
+          <button onClick={() => setTab("tempo")} className={`py-3 rounded-xl font-medium ${tab === "tempo" ? "bg-yellow-400 text-black" : "text-mist-300"}`}>Tempo</button>
+          <button onClick={() => setTab("distancia")} className={`py-3 rounded-xl font-medium ${tab === "distancia" ? "bg-yellow-400 text-black" : "text-mist-300"}`}>Distância</button>
+        </div>
+
+        <div className="space-y-6">
+          <div>
+            <div className="text-yellow-400 text-sm mb-2">DISTÂNCIA DA PROVA (KM)</div>
+            <input type="range" min="100" max="1200" value={distancia} onChange={(e) => setDistancia(+e.target.value)} className="w-full accent-yellow-400" />
+            <div className="text-center text-6xl font-light text-white mt-4">{distancia}</div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-6">
+            <div>
+              <div className="text-mist-400 text-sm mb-2">HORA DA SOLTURA</div>
+              <input type="text" value={horaSoltura} onChange={(e) => setHoraSoltura(e.target.value)} className="w-full bg-[#1e2937] border border-[#334155] rounded-2xl px-6 py-5 text-4xl text-center" />
+            </div>
+            <div>
+              <div className="text-mist-400 text-sm mb-2">HORA DA CHEGADA</div>
+              <input type="text" value={horaChegada} onChange={(e) => setHoraChegada(e.target.value)} className="w-full bg-[#1e2937] border border-[#334155] rounded-2xl px-6 py-5 text-4xl text-center text-emerald-400" />
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-10 grid grid-cols-2 gap-6">
+          <div className="bg-[#1e2937] rounded-3xl p-8 text-center">
+            <div className="text-5xl font-bold text-yellow-400">{metrosPorMinuto}</div>
+            <div className="text-mist-400 text-sm mt-2">METROS / MINUTO</div>
+          </div>
+          <div className="bg-[#1e2937] rounded-3xl p-8 text-center">
+            <div className="text-5xl font-bold text-yellow-400">{velocidadeKmh}</div>
+            <div className="text-mist-400 text-sm mt-2">KM / HORA</div>
+          </div>
+        </div>
+
+        <div className="text-center mt-6 text-emerald-400 font-bold">Excepcional</div>
+        <div className="text-center text-xs text-mist-500 mt-2">Tempo de voo: 2h 45min (165 min)</div>
+      </div>
+    </div>
+  );
+}
+
+/* ====================== OUTRAS TELAS (simplificadas por enquanto) ====================== */
 function Home({ go }: { go: (s: Section) => void }) {
   const { provas } = useProvas();
   const next = provas.find((p) => !p.done) ?? provas[0];
-  const done = provas.filter((p) => p.done).length;
   const nextDays = next ? daysLeftFor(next.dom, next.done) : 2;
 
   return (
     <div className="space-y-8">
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-amber-500 rounded-2xl flex items-center justify-center text-3xl">⚙️</div>
+        <div className="text-4xl">⚙️</div>
         <div>
           <h1 className="text-4xl font-bold text-white">Centro de Provas</h1>
           <p className="text-mist-400">Calendário · Mapa · Clima · IA integrados</p>
         </div>
       </div>
 
-      {/* Próxima Prova - Card Principal */}
-      <div className="bg-gradient-to-br from-[#13222f] to-[#0a1428] border border-yellow-400/30 rounded-3xl p-8 relative overflow-hidden">
-        <div className="flex justify-between items-start">
+      <div className="bg-[#13222f] border border-yellow-400/30 rounded-3xl p-8">
+        <div className="flex justify-between">
           <div>
-            <div className="uppercase text-yellow-400 text-sm font-bold tracking-[1px]">⚡ PRÓXIMA PROVA</div>
-            <h2 className="text-5xl font-bold text-white mt-3">#{next.n} {next.city} — {next.uf}</h2>
-            <p className="text-mist-400 mt-4 text-lg">
-              ↑ {next.diff} • {next.km} km • Domingo {next.dom}
-            </p>
+            <div className="text-yellow-400 text-sm font-bold">⚡ PRÓXIMA PROVA</div>
+            <h2 className="text-5xl font-bold text-white mt-2">#{next.n} {next.city} — {next.uf}</h2>
+            <p className="text-mist-400 mt-4">↑ {next.diff} • {next.km} km • Domingo {next.dom}</p>
           </div>
           <div className="text-right">
-            <div className="text-[92px] leading-none font-light text-emerald-400">{nextDays}</div>
-            <div className="text-sm text-mist-400 -mt-4 tracking-widest">DIAS</div>
+            <div className="text-7xl font-light text-emerald-400">{nextDays}</div>
+            <div className="text-xs text-mist-400">DIAS</div>
           </div>
         </div>
-
-        <button
-          onClick={() => go("cal")}
-          className="mt-10 w-full bg-yellow-400 hover:bg-amber-300 transition-all text-black font-bold py-4 rounded-2xl text-lg flex items-center justify-center gap-2"
-        >
-          📋 Ver Protocolo Completo →
-        </button>
-
-        <div className="absolute -bottom-10 -right-8 text-[180px] font-black text-yellow-400/5">#{next.n}</div>
-      </div>
-
-      {/* Cards Integrados */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div onClick={() => go("wx")} className="bg-[#13222f] rounded-3xl p-6 cursor-pointer hover:border-yellow-400/50 border border-transparent transition-all group">
-          <div className="text-sky-400 text-sm font-medium mb-4">CLIMA HOJE</div>
-          <div className="flex justify-between items-center">
-            <div>
-              <div className="text-6xl">⛅</div>
-              <div className="text-5xl font-light text-white mt-2">23°</div>
-            </div>
-            <div className="text-right">
-              <div className="text-emerald-400 text-xl font-bold">Bom para soltura</div>
-              <div className="text-mist-400 text-sm">14 km/h • Sudeste</div>
-            </div>
-          </div>
-        </div>
-
-        <div onClick={() => go("calc")} className="bg-[#13222f] rounded-3xl p-6 cursor-pointer hover:border-yellow-400/50 border border-transparent transition-all">
-          <div className="text-yellow-400 text-sm font-medium mb-4">CALCULADORA RÁPIDA</div>
-          <div className="text-center">
-            <div className="text-6xl font-light text-white">109.1</div>
-            <div className="text-emerald-400 text-2xl font-bold">km/h</div>
-            <div className="text-emerald-400 mt-2">Excepcional</div>
-          </div>
-        </div>
-
-        <div onClick={() => go("map")} className="bg-[#13222f] rounded-3xl p-6 cursor-pointer hover:border-yellow-400/50 border border-transparent transition-all md:col-span-2">
-          <div className="flex justify-between items-center">
-            <div>
-              <div className="text-sky-400 text-sm font-medium">MAPA DE SOLTURAS</div>
-              <div className="text-white text-xl mt-2">Próxima: Araguari em 2 dias</div>
-            </div>
-            <div className="text-6xl opacity-30">🗺️</div>
-          </div>
-          <div className="h-2 bg-gradient-to-r from-yellow-400 via-emerald-400 to-blue-500 rounded-full mt-6"></div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4 text-center">
-        <button onClick={() => go("cal")} className="bg-[#1e2937] hover:bg-[#25344a] p-6 rounded-3xl transition">📅 Calendário Completo</button>
-        <button onClick={() => go("calc")} className="bg-[#1e2937] hover:bg-[#25344a] p-6 rounded-3xl transition">⚡ Calculadora Avançada</button>
+        <button onClick={() => go("cal")} className="mt-8 w-full bg-yellow-400 text-black font-bold py-4 rounded-2xl">Ver Protocolo Completo →</button>
       </div>
     </div>
   );
 }
 
-/* ====================== OUTRAS TELAS (temporárias) ====================== */
 function Calendario({ onBack }: { onBack: () => void }) {
-  return <Placeholder title="Calendário 2026" onBack={onBack} />;
-}
-
-function Calculadora({ onBack }: { onBack: () => void }) {
-  return <Placeholder title="Calculadora de Velocidade" onBack={onBack} />;
+  return <div className="p-12 text-center text-2xl text-mist-400">Calendário em desenvolvimento...</div>;
 }
 
 function Mapa({ onBack }: { onBack: () => void }) {
-  return <Placeholder title="Mapa de Solturas" onBack={onBack} />;
+  return <div className="p-12 text-center text-2xl text-mist-400">Mapa em desenvolvimento...</div>;
 }
 
 function Clima({ onBack }: { onBack: () => void }) {
-  return <Placeholder title="Previsão do Tempo" onBack={onBack} />;
-}
-
-function Placeholder({ title, onBack }: { title: string; onBack: () => void }) {
-  return (
-    <div className="bg-[#0f172a] rounded-3xl p-20 text-center">
-      <button onClick={onBack} className="mb-8 text-mist-400 hover:text-white flex items-center gap-2">← Voltar</button>
-      <div className="text-3xl text-mist-400">{title}</div>
-      <p className="text-mist-500 mt-4">Em desenvolvimento...</p>
-    </div>
-  );
+  return <div className="p-12 text-center text-2xl text-mist-400">Clima em desenvolvimento...</div>;
 }
 
 function Ambient() {
@@ -282,4 +278,8 @@ function Clock() {
     return () => window.clearInterval(id);
   }, []);
   return <div className="hidden sm:block text-xs font-mono text-mist-500">🕒 {now.toLocaleTimeString("pt-BR")}</div>;
+}
+
+function Placeholder({ title, onBack }: { title: string; onBack: () => void }) {
+  return <div className="p-12 text-center text-mist-400">{title} em desenvolvimento...</div>;
 }
