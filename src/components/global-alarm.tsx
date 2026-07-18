@@ -156,7 +156,7 @@ export function Dashboard({ user, onSignOut }: Props) {
   );
 }
 
-/* ====================== TELA PRINCIPAL INTEGRADA (como na sua imagem) ====================== */
+/* ====================== TELA PRINCIPAL INTEGRADA ====================== */
 function Home({ go }: { go: (s: Section) => void }) {
   const { provas } = useProvas();
   const next = provas.find((p) => !p.done) ?? provas[0];
@@ -170,80 +170,73 @@ function Home({ go }: { go: (s: Section) => void }) {
         <p className="text-mist-400">Calendário • Mapa • Clima • IA integrados</p>
       </div>
 
-      {/* Próxima Prova */}
-      <div className="bg-[#13222f] border border-yellow-400/30 rounded-3xl p-6">
+      {/* Card da Próxima Prova */}
+      <div className="bg-[#13222f] border border-yellow-400/30 rounded-3xl p-8">
         <div className="flex justify-between items-start">
           <div>
-            <div className="text-yellow-400 text-sm font-bold flex items-center gap-2">
-              ⚡ PRÓXIMA PROVA
-            </div>
-            <h2 className="text-4xl font-bold text-white mt-2">#{next.n} {next.city} — {next.uf}</h2>
-            <p className="text-mist-400 mt-3">↑ {next.diff} • {next.km} km • {next.dom}</p>
+            <div className="text-yellow-400 text-sm font-bold tracking-widest">⚡ PRÓXIMA PROVA</div>
+            <h2 className="text-5xl font-bold text-white mt-3">#{next.n} {next.city} — {next.uf}</h2>
+            <p className="text-mist-400 mt-4">↑ {next.diff} • {next.km} km • Domingo {next.dom}</p>
           </div>
           <div className="text-right">
-            <div className="text-6xl font-light text-red-400">{nextDays}</div>
+            <div className="text-7xl font-light text-red-400">{nextDays}</div>
             <div className="text-xs text-mist-400">dias</div>
           </div>
         </div>
-        <button
-          onClick={() => go("cal")}
-          className="mt-6 w-full bg-yellow-400 text-black font-bold py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-yellow-300"
-        >
-          📋 Ver Protocolo Completo →
-        </button>
+        <button onClick={() => go("cal")} className="mt-8 w-full bg-yellow-400 text-black font-bold py-4 rounded-2xl">Ver Protocolo Completo →</button>
       </div>
 
       {/* Estatísticas */}
       <div className="grid grid-cols-2 gap-4">
         <div className="bg-[#13222f] rounded-3xl p-6 text-center">
           <div className="text-5xl font-bold text-white">10</div>
-          <div className="text-mist-400 text-sm">Provas 2026</div>
+          <div className="text-mist-400">Provas 2026</div>
         </div>
         <div className="bg-[#13222f] rounded-3xl p-6 text-center">
           <div className="text-5xl font-bold text-emerald-400">{done}</div>
-          <div className="text-mist-400 text-sm">Realizadas</div>
+          <div className="text-mist-400">Realizadas</div>
         </div>
       </div>
 
       {/* Progresso */}
       <div className="bg-[#13222f] rounded-3xl p-6">
-        <div className="flex justify-between text-sm mb-3">
+        <div className="flex justify-between mb-3">
           <span className="text-mist-400">Progresso da Temporada</span>
           <span className="font-bold text-yellow-400">{done}/10</span>
         </div>
-        <div className="h-2.5 bg-[#1e2937] rounded-full overflow-hidden">
-          <div className="h-full bg-yellow-400 rounded-full" style={{ width: `${(done / 10) * 100}%` }}></div>
+        <div className="h-2.5 bg-[#334155] rounded-full overflow-hidden">
+          <div className="h-full bg-yellow-400 rounded-full" style={{ width: `${(done / 10) * 100}%` }} />
         </div>
       </div>
 
-      {/* Atalhos Rápidos */}
+      {/* Atalhos */}
       <div className="grid grid-cols-1 gap-3">
-        <button onClick={() => go("cal")} className="bg-[#13222f] hover:bg-[#1e2937] p-5 rounded-2xl text-left flex items-center gap-4 transition">
-          <div className="text-3xl">📅</div>
+        <button onClick={() => go("cal")} className="bg-[#13222f] p-5 rounded-2xl text-left hover:bg-[#1e2937] transition flex items-center gap-4">
+          <span className="text-3xl">📅</span>
           <div>
             <div className="font-semibold text-white">Calendário de Provas</div>
-            <div className="text-mist-400 text-sm">10 provas • próximas solturas</div>
+            <div className="text-mist-400 text-sm">Ver todas as datas e dias restantes</div>
           </div>
         </button>
 
-        <button onClick={() => go("calc")} className="bg-[#13222f] hover:bg-[#1e2937] p-5 rounded-2xl text-left flex items-center gap-4 transition">
-          <div className="text-3xl">⚡</div>
+        <button onClick={() => go("calc")} className="bg-[#13222f] p-5 rounded-2xl text-left hover:bg-[#1e2937] transition flex items-center gap-4">
+          <span className="text-3xl">⚡</span>
           <div>
             <div className="font-semibold text-white">Calculadora de Velocidade</div>
             <div className="text-mist-400 text-sm">Velocidade, tempo e distância</div>
           </div>
         </button>
 
-        <button onClick={() => go("map")} className="bg-[#13222f] hover:bg-[#1e2937] p-5 rounded-2xl text-left flex items-center gap-4 transition">
-          <div className="text-3xl">🗺️</div>
+        <button onClick={() => go("map")} className="bg-[#13222f] p-5 rounded-2xl text-left hover:bg-[#1e2937] transition flex items-center gap-4">
+          <span className="text-3xl">🗺️</span>
           <div>
             <div className="font-semibold text-white">Mapa de Solturas</div>
             <div className="text-mist-400 text-sm">Rota completa do pombal</div>
           </div>
         </button>
 
-        <button onClick={() => go("wx")} className="bg-[#13222f] hover:bg-[#1e2937] p-5 rounded-2xl text-left flex items-center gap-4 transition">
-          <div className="text-3xl">🌤️</div>
+        <button onClick={() => go("wx")} className="bg-[#13222f] p-5 rounded-2xl text-left hover:bg-[#1e2937] transition flex items-center gap-4">
+          <span className="text-3xl">🌤️</span>
           <div>
             <div className="font-semibold text-white">Previsão do Tempo</div>
             <div className="text-mist-400 text-sm">Condições para soltura</div>
@@ -254,7 +247,7 @@ function Home({ go }: { go: (s: Section) => void }) {
   );
 }
 
-/* ====================== TELAS SIMPLIFICADAS ====================== */
+/* ====================== OUTRAS TELAS ====================== */
 function Calendario({ onBack }: { onBack: () => void }) {
   return <Placeholder title="Calendário 2026" onBack={onBack} />;
 }
